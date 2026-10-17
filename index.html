@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- STYLE: Opening night at a New York theater (crimson velvet, gilded gold, Bodoni Moda with Lato) | WHY: During the Games for Change week, Sinjin and Claire arranged an apartment for Gordon and offered him tickets to the Whoopi Monologues at Lincoln Center, so the gift is a curtain call where Sinjin is the one receiving the roses | ALT: A city skyline postcard, rejected as generic; the theater night was the specific shared memory -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Curtain Call</title>
+<meta name="description" content="A curtain call for Sinjin and Claire.">
+<meta property="og:title" content="Curtain Call, for Sinjin">
+<meta property="og:image" content="https://gordonusc.github.io/gift-sinjin/img/hero.jpg">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,600;0,800;1,500&family=Lato:wght@400;700&display=swap">
+<style>
+:root{--gold:#e7c26a;--crimson:#8e0f1d;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#120406;color:#fff7e6;font:16px/1.45 Lato,system-ui,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:none}
+.stage{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);width:min(100vw,calc(100svh*9/16));overflow:hidden}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(var(--b,.45));transition:filter .2s}
+canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.top{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 18px);text-align:center;padding:0 18px;text-shadow:0 2px 14px #000;pointer-events:none}
+.top small{font-weight:700;font-size:11px;letter-spacing:.32em;color:var(--gold)}
+.top h1{font:800 clamp(36px,11.5vw,54px)/1 "Bodoni Moda",Didot,serif;margin:6px 0}
+.top p{margin:0 auto;max-width:28ch;font-size:15px}
+.rope{position:absolute;right:16px;top:30%;height:44%;width:54px;cursor:grab;touch-action:none}
+.rope i{position:absolute;left:50%;top:0;bottom:44px;width:6px;transform:translateX(-50%);background:repeating-linear-gradient(45deg,#e7c26a 0 5px,#a8822e 5px 10px);border-radius:3px}
+.rope b{position:absolute;left:50%;width:34px;height:52px;transform:translate(-50%,var(--y,0px));bottom:0;border-radius:12px 12px 20px 20px;background:radial-gradient(circle at 40% 30%,#ffe7a3,#c9952e);box-shadow:0 6px 14px #0009}
+.rope em{pointer-events:none;position:absolute;left:50%;bottom:-22px;transform:translateX(-50%);font-style:normal;font-weight:700;font-size:10px;letter-spacing:.2em;color:var(--gold);white-space:nowrap}
+.hint{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 40px);text-align:center;font-weight:700;font-size:13px;letter-spacing:.18em;color:var(--gold);text-shadow:0 2px 8px #000;pointer-events:none}
+.end{position:absolute;left:18px;right:18px;top:40%;text-align:center;opacity:0;transition:opacity 1.4s;pointer-events:none;text-shadow:0 2px 18px #000}
+.end.on{opacity:1}
+.end h2{font:italic 500 clamp(30px,9.5vw,44px)/1.08 "Bodoni Moda",serif;margin:0 0 10px}
+.end p{margin:0 auto;max-width:28ch}
+.foot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);text-align:center;font-size:11px;opacity:.75;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <img class="bg" id="bg" src="img/hero.jpg" alt="A grand New York theater stage with a crimson velvet curtain, gilded arch, footlights and roses">
+  <canvas id="c"></canvas>
+  <div class="top"><small>FOR SINJIN AND CLAIRE</small><h1>Curtain Call</h1><p>Pull the gold rope down to bring up the lights. Then toss the roses. Sound on.</p></div>
+  <div class="rope" id="rope"><i></i><b id="tassel"></b><em>PULL</em></div>
+  <div class="hint" id="hint">PULL THE ROPE</div>
+  <div class="end" id="end"><h2>Thank you, Sinjin and Claire.</h2><p>For the apartment, the Lincoln Center tickets, and a week in New York Gordon will never forget.</p></div>
+  <div class="foot">made by Darby, Gordon's AI assistant, with love from Gordon</div>
+</div>
+<script>
+// ElevenLabs sound design: curtain rigging whoosh, Broadway overture, rising theater applause. Code only mixes.
+const SND=['curtain','overture','applause'];
+let ac=null, master=null, bufs={}, clap=null;
+function audio(){ if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)(); master=ac.createGain(); master.gain.value=.9; master.connect(ac.destination); SND.forEach(load);}catch(e){} } if(ac&&ac.state==='suspended') ac.resume(); return ac; }
+async function load(n){ if(bufs[n]) return bufs[n]; try{ const r=await fetch('snd/'+n+'.mp3'); const a=await r.arrayBuffer(); bufs[n]=await new Promise((ok,no)=>ac.decodeAudioData(a,ok,no)); }catch(e){} return bufs[n]; }
+async function play(n,vol=1,loop=false){ if(!audio()) return null; const b=await load(n); if(!b) return null; const s=ac.createBufferSource(), g=ac.createGain(); s.buffer=b; s.loop=loop; g.gain.value=vol; s.connect(g).connect(master); s.start(); return {s,g}; }
+const c=document.getElementById('c'), x=c.getContext('2d'), D=Math.min(devicePixelRatio||1,2);
+function size(){ c.width=c.clientWidth*D; c.height=c.clientHeight*D; } size(); addEventListener('resize',size);
+const stage=document.getElementById('stage'), rope=document.getElementById('rope'), bg=document.getElementById('bg');
+let pull=0, lit=false, roses=[], thrown=0, done=false, drag=null, spots=0;
+function setPull(p){ pull=Math.max(0,Math.min(1,p)); document.getElementById('tassel').style.setProperty('--y',(pull*60)+'px'); bg.style.setProperty('--b',(.45+pull*.6).toFixed(2)); spots=pull;
+  if(pull>=1&&!lit){ lit=true; play('curtain',.8); play('overture',.6); rope.style.display='none'; document.getElementById('hint').textContent='TAP THE STAGE TO TOSS ROSES · 0/5'; } }
+rope.addEventListener('pointerdown',e=>{ audio(); drag={y:e.clientY,p:pull}; rope.setPointerCapture(e.pointerId); });
+rope.addEventListener('pointermove',e=>{ if(drag) setPull(drag.p+(e.clientY-drag.y)/140); });
+rope.addEventListener('pointerup',e=>{ if(drag&&Math.abs(e.clientY-drag.y)<6) setPull(pull+.34); drag=null; });
+stage.addEventListener('pointerdown',e=>{ if(!lit||done||e.target.closest('.rope')) return; audio(); const r=c.getBoundingClientRect(), px=(e.clientX-r.left)*D;
+  thrown++; roses.push({x:px,y:c.height+20*D,vx:(c.width*.5-px)*.004,vy:-(13+thrown)*D*.9,r:0,land:c.height*(.63+((thrown*7)%10)/200),done:false});
+  if(!clap) play('applause',.35,true).then(h=>clap=h); else clap.g.gain.setTargetAtTime(.35+thrown*.1,ac.currentTime,.3);
+  document.getElementById('hint').textContent='TAP THE STAGE TO TOSS ROSES · '+thrown+'/5';
+  if(thrown>=5){ done=true; setTimeout(()=>{ document.getElementById('hint').style.display='none'; document.getElementById('end').classList.add('on'); play('applause',.6); },900); } });
+function rose(px,py,rot,s){ x.save(); x.translate(px,py); x.rotate(rot); x.strokeStyle='#2f6b2a'; x.lineWidth=3*D*s; x.beginPath(); x.moveTo(0,4*D); x.lineTo(0,30*D*s); x.stroke();
+  x.fillStyle='#c2142a'; for(let k=0;k<5;k++){ x.beginPath(); x.ellipse(Math.cos(k*1.26)*5*D*s,Math.sin(k*1.26)*5*D*s,7*D*s,5*D*s,k,0,7); x.fill(); } x.fillStyle='#7c0a19'; x.beginPath(); x.arc(0,0,4*D*s,0,7); x.fill(); x.restore(); }
+(function loop(t){ const W=c.width,H=c.height; x.clearRect(0,0,W,H);
+  if(spots>0){ [.25,.75].forEach((u,k)=>{ const cx=W*u+Math.sin(t/1200+k*2)*W*.12; const g=x.createRadialGradient(cx,H*.62,10,cx,H*.62,W*.45); g.addColorStop(0,`rgba(255,236,180,${.28*spots})`); g.addColorStop(1,'rgba(255,236,180,0)'); x.fillStyle=g; x.fillRect(0,0,W,H); }); }
+  roses.forEach(p=>{ if(!p.done){ p.x+=p.vx*D; p.y+=p.vy; p.vy+=.45*D; p.r+=.14; if(p.vy>0&&p.y>=p.land){ p.y=p.land; p.done=true; } } rose(p.x,p.y,p.done?1.3:p.r,1.1); });
+  requestAnimationFrame(loop); })(0);
+</script>
+</body>
+</html>

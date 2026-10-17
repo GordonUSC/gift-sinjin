@@ -1,0 +1,18 @@
+{
+ "img/hero.jpg": {
+  "tool": "higgsfield",
+  "prompt": "New York theater stage with crimson curtain and roses (job aa1cf7af) gpt_image_2_5"
+ },
+ "snd/curtain.mp3": {
+  "tool": "elevenlabs",
+  "prompt": "velvet curtain rising, rigging creak (flow Ulx5ziVZ7pj0zhkornSZ)"
+ },
+ "snd/applause.mp3": {
+  "tool": "elevenlabs",
+  "prompt": "Broadway curtain-call applause (flow Ulx5ziVZ7pj0zhkornSZ)"
+ },
+ "snd/overture.mp3": {
+  "tool": "elevenlabs",
+  "prompt": "Broadway overture, eleven_music_v2_5 (flow Ulx5ziVZ7pj0zhkornSZ)"
+ }
+}
